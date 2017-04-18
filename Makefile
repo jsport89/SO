@@ -49,13 +49,13 @@ $(img): $(kernel) $(grub_cfg)
 	@sudo losetup -d /dev/loop0
 	@sudo losetup -d /dev/loop1
 
-$(kernel): build_src $(assembly_object_files) $(linker_script) 
-	ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(lib_driver_objs) 
+$(kernel): build_src $(assembly_object_files) $(linker_script)
+	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(lib_driver_objs)
 
 build_src:
-	cd $(lib_make) && $(MAKE)
+	@cd $(lib_make) && $(MAKE)
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
 	@mkdir -p $(shell dirname $@)
-	@nasm -felf64 $< -o $@ 
+	@nasm -felf64 $< -o $@

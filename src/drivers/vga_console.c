@@ -4,13 +4,10 @@
  * - '\n' is treated as '\r'
  * - Test scroll()
  * - Test VGA_display_char() cases
+ * - #define background attributes (fix cursor colors)
  */
 #include "vga_console.h"
 #include "../lib/so_string.h"
-#define VGA_BASE 0xb8000
-#define WIDTH 80  /* Pixels? */
-#define HEIGHT 25
-#define FONT 10 << 8
 
 /* Screen Size Specs */
 static unsigned short *vgaBuff = (unsigned short*)VGA_BASE;
@@ -35,12 +32,21 @@ void VGA_clear(void) {
 void VGA_display_char(char c) {
    unsigned short char_attrbs = FONT;
 
+   /* Clear cursor */
+   vgaBuff[cursor] = 0;
+
    if (c == '\n') {
       cursor += WIDTH - (cursor % WIDTH);
       if (cursor >= SCREEN_MAX) {
          scroll();
          cursor -= WIDTH;
       }
+   }
+   else if (c == '\b') {
+      if (cursor == 0)
+         return;
+      cursor--;
+      vgaBuff[cursor] = 0;
    }
    else {
       if (cursor == SCREEN_MAX) {
@@ -51,6 +57,8 @@ void VGA_display_char(char c) {
       vgaBuff[cursor] = char_attrbs | c;
       cursor++;
    }
+   /* Highlight cursor */
+   vgaBuff[cursor] = CURSOR_ATTRBS;
 }
 
 /* Outputs a string starting from cursor position */

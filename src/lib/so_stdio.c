@@ -217,7 +217,6 @@ void printk(const char *fmt, ...) {
                      print_long_long((long long)va_arg(ap, long int));
                      break;
                   case 'u' :
-                     print_str("In %%lu case.\n");
                      print_unsigned_long_long((unsigned long long)va_arg(ap,  long unsigned int));
                      break;
                   case 'x' :
