@@ -22,6 +22,7 @@ void VGA_display_char(char c);
 void VGA_display_str(const char * str);
 void scroll();
 
+
 /* Clears entire screen */
 void VGA_clear(void) {
    memset((void*)VGA_BASE, 0, SCREEN_MAX * 2);

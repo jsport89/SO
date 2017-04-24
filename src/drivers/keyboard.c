@@ -28,7 +28,7 @@ char scancode[SCANCODE_TABLE_SIZE] = {
 };
 
 /* Prototypes */
-static void keyboard_init(void);
+void keyboard_init(void);
 void keyboard_poll_scancodes(void);
 char get_scancode();
 char get_char();
@@ -49,8 +49,7 @@ char get_char() {
 
 void keyboard_poll_scancodes() {
 
-   keyboard_init();
-
+   printk(">> ");
    /* Get ascii value from lookup table */
    while(1) {
       char to_print = get_char();
@@ -60,45 +59,54 @@ void keyboard_poll_scancodes() {
    }
 }
 
-static void keyboard_init(){
+void keyboard_init(){
    uint8_t response;
    uint8_t command = 0xFF; /* Reset device */
 
-   /* init ps2 controller */
+   /* init ps2 controller
       ps2_init();
+      */
 
    /* reset keyboard */
       write_to_data_port(command);
       response = read_from_data_port();
 
-   /* DEBUGGING */
+   /* DEBUGGING
       printk("Rest resp: %x\n", (unsigned int)response);
-
+    */
       response = read_from_data_port();
 
-   /* DEBUGGING */
+   /* DEBUGGING
       printk("Rest resp: %x\n", (unsigned int)response);
+    */
 
    /* Set scan codes*/
       command = 0xF0;
       write_to_data_port(command);
 
-   /* DEBUGGING */
+
       response = read_from_data_port();
+   /* DEBUGGING
       printk("Scan cmd resp: %x\n", (unsigned int)response);
+    */
 
       command = 0x01;
       write_to_data_port(command);
 
-   /* DEBUGGING */
+
       response = read_from_data_port();
+   /* DEBUGGING
       printk("Scan sub cmd resp: %x\n", (unsigned int)response);
+    */
 
    /* enable keyboard */
       command = 0xF4;
       write_to_data_port(command);
 
-   /* DEBUGGING */
+
       response = read_from_data_port();
+   /* DEBUGGING
       printk("Enable keyboard cmd resp: %x\n", (unsigned int)response);
+    */
+    printk(" Keyboard");
 }

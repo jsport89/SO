@@ -5,14 +5,16 @@ IMG_NAME := os-so-$(arch).img
 
 linker_script := src/arch/$(arch)/linker.ld
 grub_cfg := src/arch/$(arch)/grub.cfg
-assembly_source_files := $(wildcard src/arch/$(arch)/*.asm)
-assembly_object_files := $(patsubst src/arch/$(arch)/%.asm, \
+ASM_ISR_DIR = /home/kamdori/Desktop/CPE-454/SO/src/asm
+INIT_ISR_DIR = /home/kamdori/Desktop/CPE-454/SO/src/drivers
+assembly_source_files := $(wildcard src/asm/*.asm)
+assembly_object_files := $(patsubst src/asm/%.asm, \
 	build/arch/$(arch)/%.o, $(assembly_source_files))
 
 # Build src files and link'm
-lib_driver_files_dir = arch/$(arch)/lib_objs
-lib_driver_files := $(shell find src -name '*.c')
-lib_driver_objs := $(patsubst %.c, %.o, $(lib_driver_files))
+all_c_files_dir = arch/$(arch)/lib_objs
+all_c_files := $(shell find src -name '*.c')
+c_file_generated_objs := $(patsubst %.c, %.o, $(all_c_files))
 lib_make = ~/Desktop/CPE-454/SO/src
 
 .PHONY: all clean run iso
@@ -49,13 +51,17 @@ $(img): $(kernel) $(grub_cfg)
 	@sudo losetup -d /dev/loop0
 	@sudo losetup -d /dev/loop1
 
-$(kernel): build_src $(assembly_object_files) $(linker_script)
-	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(lib_driver_objs)
+$(kernel): generate_isr_asm_init $(assembly_object_files) build_src $(linker_script)
+	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(c_file_generated_objs)
 
 build_src:
 	@cd $(lib_make) && $(MAKE)
 
+generate_isr_asm_init:
+	@python generate_isr_asm.py $(ASM_ISR_DIR)/isr_wrapper.asm
+	@python generate_isr_init.py $(INIT_ISR_DIR)/init_IDT_entries
+
 # compile assembly files
-build/arch/$(arch)/%.o: src/arch/$(arch)/%.asm
+build/arch/$(arch)/%.o: src/asm/%.asm
 	@mkdir -p $(shell dirname $@)
 	@nasm -felf64 $< -o $@

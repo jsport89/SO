@@ -1,19 +1,21 @@
 /* kernel.c - Entry point for kernel */
 #include "drivers/load_drivers.h"
+#include "drivers/init_drivers.h"
 #include "lib/so_stdio.h"
+#include "tests/tests.h"
 
 
 int kernel_main() {
 
-/* Add init func of drivers */
-   VGA_clear();
+   /* Init drivers */
+   init_drivers();
 
-   printk("SO - Somewhat Operating %s\n", "Operating System");
+   printk("\nSO - Somewhat Operating %s\n\n", "Operating System");
 
+   /* Call Test code here */
 
+   /* run_so_stdio_tests(); */
    keyboard_poll_scancodes();
-
-   /* Compartmentalize Test Code */
 
    for(;;)
       __asm__("hlt");

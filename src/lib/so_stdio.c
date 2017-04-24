@@ -43,7 +43,8 @@ void print_char(char c) {
    VGA_display_char(c);
 }
 
-void print_long_long(long long num) {
+void print_long_long(long long num_to_print) {
+   unsigned long long num;
    int i, ones_place_digit;
    char *position = num_buff + NUM_BUFF_SIZE - 1;
    int len = 0;
@@ -52,10 +53,12 @@ void print_long_long(long long num) {
    init_num_buff();
 
    /* Check if it's negative */
-   if (num < 0) {
+   if (num_to_print < 0) {
       is_negative = TRUE;
-      num = num * -1;
+      num = ~num_to_print + 1;
    }
+   else
+      num = num_to_print;
 
    /* Build Number */
    while (num >= 10) {
@@ -207,14 +210,25 @@ void printk(const char *fmt, ...) {
                break;
 
             case 'h' :
-               print_long_long((long long)va_arg(ap, int));
+               i++;
+               switch(fmt[i]) {
+                  case 'd' :
+                     print_long_long((long long)va_arg(ap, int));
+                     break;
+                  case 'u' :
+                     print_unsigned_long_long((unsigned long long)va_arg(ap, unsigned int));
+                     break;
+                  case 'x' :
+                     print_long_long_hex((unsigned long long)va_arg(ap, unsigned int));
+                     break;
+               }
                break;
 
             case 'l' :
                i++;
                switch(fmt[i]) {
                   case 'd' :
-                     print_long_long((long long)va_arg(ap, long int));
+                     print_long_long((long long)va_arg(ap, long));
                      break;
                   case 'u' :
                      print_unsigned_long_long((unsigned long long)va_arg(ap,  long unsigned int));
@@ -229,7 +243,7 @@ void printk(const char *fmt, ...) {
                i++;
                switch(fmt[i]) {
                   case 'd' :
-                     print_long_long((long long)va_arg(ap, long long int));
+                     print_long_long((long long)va_arg(ap, long long));
                      break;
                   case 'u' :
                      print_unsigned_long_long((unsigned long long)va_arg(ap, long long unsigned));

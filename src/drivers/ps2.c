@@ -90,17 +90,19 @@ void ps2_init(void) {
    ps2_poll_write_cmd(0xAA);
    response = ps2_poll_read();
 
-/* DEBUGGING */
+/* DEBUGGING
    printk("Response if config byte was set (0x55 = passed): %x.\n", (unsigned int)response);
+ */
 
    /* Interface test */
    ps2_poll_write_cmd(0xAB);
    response = ps2_poll_read();
 
-/* DEBUGGING */
+/* DEBUGGING
    printk("Interface test port1 (0x00 = passed): %x.\n", (unsigned int)response);
+ */
 
-/*
+/* Second port
    ps2_poll_write_cmd(0xA9);
    response = ps2_poll_read();
    printk("Interface test port2 (0x00 = passed): %x.\n", (unsigned int)response);
@@ -109,9 +111,10 @@ void ps2_init(void) {
    /* Enable devices on ports 1 & 2 */
    command = 0xAE;
     ps2_poll_write_cmd(command);
-/*
+
+/* Second port
    command = 0xA8;
    ps2_poll_write_cmd(command);
  */
-   return;
+   printk(" PS/2");
 }
