@@ -10,13 +10,13 @@ def generate_irq_init_files(file_name_path):
 	c_file = open(c_file_name, "w")
 
 	# HEADER FILE
-        
+
         header_file.write("#ifndef INIT_IDT_ENTRIES_H\n")
 	header_file.write("#define INIT_IDT_ENTRIES_H\n\n")
 
 	# print extern void* irq_wrapper_X
         for i in range(IRQ_VECTORS):
-		header_file.write("extern void *isr_wrapper_" + str(i) + ";\n")
+		header_file.write("extern void isr_wrapper_" + str(i) + "(void);\n")
 
 	# print out stub that inits Global_IDT (init entries irqwrap addr)
         header_file.write("\nvoid init_IDT(void);\n\n")
@@ -30,19 +30,20 @@ def generate_irq_init_files(file_name_path):
 	c_file.write("#include \"interrupts.h\"\n")
 	c_file.write("#include <stdint-gcc.h>\n\n")
 
-        # Prototypes 
+        # Prototypes
         c_file.write("void init_IDT(void);\n\n")
 
-	# Init OTHER fields 
+	# Init OTHER fields
 	c_file.write("void init_IDT() {\n" +
-                     "   memset((void*)Global_IDT, 0, sizeof(Interrupt_Descriptor) * 256);\n" + 
-		     "   for (int i = 0; i < 256; i++) {\n" +
-		# Assign Global_IDT[i].target_selector =
-		     "      Global_IDT[i].dpl = 0;\n" +
-		     "      Global_IDT[i].present = 1;\n" +
-		     "      Global_IDT[i].type = 0xE;\n" +
-		     "   }\n\n")
-	
+                 "   memset((void*)Global_IDT, 0, sizeof(Interrupt_Descriptor) * 256);\n" +
+		         "   for (int i = 0; i < 256; i++) {\n" +
+		         "      Global_IDT[i].target_selector = 0x08;\n" +
+                 "      Global_IDT[i].isti = 0;\n"
+		         "      Global_IDT[i].dpl = 0;\n" +
+		         "      Global_IDT[i].present = 1;\n" +
+		         "      Global_IDT[i].type = 0xE;\n" +
+		         "   }\n\n")
+
 	# Init target offsets to isr_wrapper addresses
 	c_file.write("   uint64_t isr_address;\n" +
 		     "   uint32_t target_offset_3;\n" +

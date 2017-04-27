@@ -12,6 +12,6 @@ void ps2_init(void);
 void write_to_cmd_port(uint8_t msg);
 void write_to_data_port(uint8_t msg);
 char read_from_data_port(void);
-
+char read_poll_data_port(void);
 
 #endif /* ps2.h */

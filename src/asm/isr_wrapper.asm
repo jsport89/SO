@@ -272,7 +272,7 @@ common_irq_handler:
     pop rdx
     pop rsi
     pop rdi
-iretq
+    iretq
 
 isr_wrapper_0:
     push rdi

@@ -8,6 +8,8 @@ void init_IDT(void);
 void init_IDT() {
    memset((void*)Global_IDT, 0, sizeof(Interrupt_Descriptor) * 256);
    for (int i = 0; i < 256; i++) {
+      Global_IDT[i].target_selector = 0x08;
+      Global_IDT[i].isti = 0;
       Global_IDT[i].dpl = 0;
       Global_IDT[i].present = 1;
       Global_IDT[i].type = 0xE;

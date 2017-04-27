@@ -4,13 +4,16 @@
  */
 #include "keyboard.h"
 #include "ps2.h"
+#include "vga_console.h"
 #include "../lib/so_stdio.h"
 #include "../lib/so_string.h"
 #define SCANCODE_TABLE_SIZE 256
+#define SELF_TEST_PASSED 0xAA
+#define ACK 0xFA
 
 /*
  * TODO:
- * - backspace
+ * - Modifier keys
  * - l-ctr
  * - l-shft
  * - r-shft
@@ -30,6 +33,7 @@ char scancode[SCANCODE_TABLE_SIZE] = {
 /* Prototypes */
 void keyboard_init(void);
 void keyboard_poll_scancodes(void);
+void keyboard_interrupt_scancode(void);
 char get_scancode();
 char get_char();
 
@@ -47,66 +51,87 @@ char get_char() {
    return to_print;
 }
 
+/*
+ * Prints a char from the PS2 output buffer
+ * to the VGA and serial output buffer
+ */
+void keyboard_interrupt_scancode() {
+   char char_to_print = get_char();
+
+   if (char_to_print != 0)
+      VGA_display_char(char_to_print);
+   if (char_to_print == '\n')
+      VGA_display_str(">> ");
+
+   /* Call serial driver here later */
+}
+
+/*
+ * + Reset keyboard
+ * + Set scan codes
+ * + Enable Keyboard
+ */
+void keyboard_init(){
+   uint8_t response;
+   uint8_t command = 0xFF; /* Reset device */
+
+      write_to_data_port(command);
+      response = read_from_data_port();
+
+      if (response != ACK)
+         printk("Keyboard init: Failed reset test. Response: %x.\n", (unsigned int)response);
+
+      response = read_from_data_port();
+
+      if (response != SELF_TEST_PASSED)
+         printk("Keyboard init: Failed reset test.  Response %x\n", (unsigned int)response);
+
+      command = 0xF0;
+      write_to_data_port(command);
+
+      response = read_from_data_port();
+
+      if (response != ACK)
+         printk("Keyboard init: Failed scan set.  Response: %x.\n", (unsigned int)response);
+
+      command = 0x01;
+      write_to_data_port(command);
+
+      response = read_from_data_port();
+
+      if (response != ACK)
+         printk("Keyboard init: Failed scan set sub.  Response: %x.\n", (unsigned int)response);
+
+      command = 0xF4;
+      write_to_data_port(command);
+
+      response = read_from_data_port();
+      if (response != ACK)
+         printk("Keyboard init: Failed enable.  Response: %x.\n", (unsigned int)response);
+
+    printk(" Keyboard");
+}
+
+/* Old polling code */
+char poll_char() {
+   uint8_t offset;
+   char to_print;
+
+   offset = read_poll_data_port();
+   to_print = scancode[offset];
+
+   return to_print;
+}
+
+/* Old code */
 void keyboard_poll_scancodes() {
 
    printk(">> ");
    /* Get ascii value from lookup table */
    while(1) {
-      char to_print = get_char();
+      char to_print = poll_char();
 
          if (to_print != 0)
             printk("%c", to_print);
    }
-}
-
-void keyboard_init(){
-   uint8_t response;
-   uint8_t command = 0xFF; /* Reset device */
-
-   /* init ps2 controller
-      ps2_init();
-      */
-
-   /* reset keyboard */
-      write_to_data_port(command);
-      response = read_from_data_port();
-
-   /* DEBUGGING
-      printk("Rest resp: %x\n", (unsigned int)response);
-    */
-      response = read_from_data_port();
-
-   /* DEBUGGING
-      printk("Rest resp: %x\n", (unsigned int)response);
-    */
-
-   /* Set scan codes*/
-      command = 0xF0;
-      write_to_data_port(command);
-
-
-      response = read_from_data_port();
-   /* DEBUGGING
-      printk("Scan cmd resp: %x\n", (unsigned int)response);
-    */
-
-      command = 0x01;
-      write_to_data_port(command);
-
-
-      response = read_from_data_port();
-   /* DEBUGGING
-      printk("Scan sub cmd resp: %x\n", (unsigned int)response);
-    */
-
-   /* enable keyboard */
-      command = 0xF4;
-      write_to_data_port(command);
-
-
-      response = read_from_data_port();
-   /* DEBUGGING
-      printk("Enable keyboard cmd resp: %x\n", (unsigned int)response);
-    */
-    printk(" Keyboard");
 }

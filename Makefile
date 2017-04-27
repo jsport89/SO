@@ -29,7 +29,7 @@ clean:
 	@rm -r build
 
 run: $(img)
-	@qemu-system-x86_64 -s -drive format=raw,file=$(IMG_NAME) -serial stdio
+	@qemu-system-x86_64 -s -drive format=raw,file=$(IMG_NAME) -serial stdio -d int
 
 img: $(img)
 
@@ -52,16 +52,16 @@ $(img): $(kernel) $(grub_cfg)
 	@sudo losetup -d /dev/loop1
 
 $(kernel): generate_isr_asm_init $(assembly_object_files) build_src $(linker_script)
-	@ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(c_file_generated_objs)
+	ld -n -T $(linker_script) -o $(kernel) $(assembly_object_files) $(c_file_generated_objs)
 
 build_src:
-	@cd $(lib_make) && $(MAKE)
+	cd $(lib_make) && $(MAKE)
 
 generate_isr_asm_init:
-	@python generate_isr_asm.py $(ASM_ISR_DIR)/isr_wrapper.asm
-	@python generate_isr_init.py $(INIT_ISR_DIR)/init_IDT_entries
+	python generate_isr_asm.py $(ASM_ISR_DIR)/isr_wrapper.asm
+	python generate_isr_init.py $(INIT_ISR_DIR)/init_IDT_entries
 
 # compile assembly files
 build/arch/$(arch)/%.o: src/asm/%.asm
-	@mkdir -p $(shell dirname $@)
-	@nasm -felf64 $< -o $@
+	mkdir -p $(shell dirname $@)
+	nasm -felf64 $< -o $@

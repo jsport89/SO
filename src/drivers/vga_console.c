@@ -8,6 +8,7 @@
  */
 #include "vga_console.h"
 #include "../lib/so_string.h"
+#include <stdint-gcc.h>
 
 /* Screen Size Specs */
 static unsigned short *vgaBuff = (unsigned short*)VGA_BASE;
@@ -78,5 +79,5 @@ void scroll() {
       vgaBuff[i - WIDTH] = vgaBuff[i];
 
    /* memset last (2*WIDTH) of SCREEN_MAX */
-   memset((void*)(VGA_BASE + (SCREEN_MAX * 2) - (WIDTH * 2)), 0, (WIDTH * 2));
+   memset((void*)((uint64_t)(VGA_BASE + (SCREEN_MAX * 2) - (WIDTH * 2))), 0, (WIDTH * 2));
 }

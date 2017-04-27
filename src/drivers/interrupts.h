@@ -1,7 +1,10 @@
 #ifndef INTERRUPTS_H
 #define INTERRUPTS_H
 #include <stdint-gcc.h>
+
 #define IDT_SIZE 256
+#define CLI asm("cli" : : );
+#define STI asm("sti" : : );
 
 typedef struct {
    uint16_t target_offset_1;
@@ -19,11 +22,6 @@ typedef struct {
 
 typedef void (*irq_handler_t)(int, int, void*);
 
-static struct {
-   void *arg;
-   irq_handler_t handler;
-} irq_table[IDT_SIZE];
-
 /* Tell cpu where IDT is */
 static inline void lidt(void* base, uint16_t size)
 {   // This function works in 32 and 64bit mode
@@ -39,4 +37,5 @@ extern Interrupt_Descriptor Global_IDT[IDT_SIZE];
 extern void IRQ_handler(int irq_num, int err);
 void init_interrupt_environment(void);
 
+/* asm("int $0x21");*/
 #endif /* interrupts.h */

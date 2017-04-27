@@ -9,6 +9,7 @@ all:
 	@$(CC) $(CFLAGS) -o drivers/ps2.o drivers/ps2.c
 	@$(CC) $(CFLAGS) -o drivers/keyboard.o drivers/keyboard.c
 	@$(CC) $(CFLAGS) -o drivers/init_drivers.o drivers/init_drivers.c
+	@$(CC) $(CFLAGS) -o drivers/serial_output.o drivers/serial_output.c
 	@$(CC) $(CFLAGS) -o drivers/interrupts.o drivers/interrupts.c
 	@$(CC) $(CFLAGS) -o drivers/PIC.o drivers/PIC.c
 	@$(CC) $(CFLAGS) -o drivers/init_IDT_entries.o drivers/init_IDT_entries.c
@@ -16,7 +17,7 @@ all:
 	@$(CC) $(CFLAGS) -o tests/so_stdio_tests.o tests/so_stdio_tests.c
 	@$(CC) $(CFLAGS) -o tests/so_string_tests.o tests/so_string_tests.c
 	@$(CC) $(CFLAGS) -o tests/vga_console_tests.o tests/vga_console_tests.c
-	@$(CC) $(CFLAGS) -o kernel.o kernel.c
+	@$(CC) $(CFLAGS) -o kernel.o kernel.c -mno-red-zone
 
 clean:
 	-rm *.o

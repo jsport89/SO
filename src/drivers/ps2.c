@@ -13,6 +13,8 @@ void ps2_init(void);
 void write_to_cmd_port(uint8_t msg);
 void write_to_data_port(uint8_t msg);
 char read_from_data_port(void);
+char read_poll_data_port(void);
+
 
 void write_to_cmd_port(uint8_t msg) {
    ps2_poll_write_cmd(msg);
@@ -22,8 +24,13 @@ void write_to_data_port(uint8_t msg) {
    ps2_poll_write_data(msg);
 }
 
-char read_from_data_port(void) {
+/* Wrapper for keyboard_poll_scancodes */
+char read_poll_data_port(void) {
    return ps2_poll_read();
+}
+
+char read_from_data_port(void) {
+   return inb(PS2_DATA);
 }
 
 static void ps2_poll_write_data(uint8_t c) {
@@ -53,20 +60,27 @@ static char ps2_poll_read(void) {
    return inb(PS2_DATA);
 }
 
+/*
+ * + Disable devices on channel 1 & 2
+ * + Flush output buff
+ * + Read/Set config byte
+ * + Self test
+ * + Interface test
+ * + Enable clock and interrupts on channel 1
+ * + Enable Device on Port 1
+ */
 void ps2_init(void) {
    uint8_t command = 0;
    uint8_t response = 0;
    uint8_t config = 17; /* 51; */
 
-   /* Disable devices on channel 1 & 2 */
    command = 0xAD;
    ps2_poll_write_cmd(command);
 
    command = 0xA7;
    ps2_poll_write_cmd(command);
 
-   /* Flush output buff */
-   response = ps2_poll_read();
+   response = ps2_poll_read(); /* Flush */
 
    /*
     * Read PS/2 config byte:
@@ -79,42 +93,25 @@ void ps2_init(void) {
 
    response = ps2_poll_read();
 
-   /* Enable the clock and interrupts on channel 1 & 2 */
-
-   /* Write next byte to config byte */
    ps2_poll_write_cmd(0x60);
    config = response | config;
    ps2_poll_write_data(config);
 
-   /* Self Test (returns 0x55)*/
    ps2_poll_write_cmd(0xAA);
    response = ps2_poll_read();
 
-/* DEBUGGING
-   printk("Response if config byte was set (0x55 = passed): %x.\n", (unsigned int)response);
- */
+   if (response != 0x55)
+      printk("PS2: Failed self test. Response: %x.\n", (unsigned int)response);
 
-   /* Interface test */
    ps2_poll_write_cmd(0xAB);
    response = ps2_poll_read();
 
-/* DEBUGGING
-   printk("Interface test port1 (0x00 = passed): %x.\n", (unsigned int)response);
- */
-
-/* Second port
-   ps2_poll_write_cmd(0xA9);
-   response = ps2_poll_read();
-   printk("Interface test port2 (0x00 = passed): %x.\n", (unsigned int)response);
-*/
+   if (response != 0x00)
+      printk("PS2: Failed interface test. Response: %x.\n", (unsigned int)response);
 
    /* Enable devices on ports 1 & 2 */
    command = 0xAE;
-    ps2_poll_write_cmd(command);
-
-/* Second port
-   command = 0xA8;
    ps2_poll_write_cmd(command);
- */
+   
    printk(" PS/2");
 }
