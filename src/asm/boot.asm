@@ -5,7 +5,7 @@ section .text
 bits 32
 start:
     mov esp, stack_top
-    
+
     call check_multiboot
     call check_cpuid
     call check_long_mode
@@ -154,7 +154,7 @@ stack_bottom:
     resb 64
 stack_top:
 
-section .rodata
+section .data
 gdt64:
     dq 0 ; zero entry
 .code: equ $ - gdt64 ; new

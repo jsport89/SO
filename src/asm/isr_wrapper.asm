@@ -316,8 +316,16 @@ isr_wrapper_7:
 
 isr_wrapper_8:
     push rdi
+    mov rdi, [rsp + 8]
+    push rsi
+    mov rsi, [rsp + 8]
+    mov [rsp + 16], rsi
+    mov rsi, [rsp]
+    mov [rsp + 8], rsi
+    mov rsp, 8
+    mov rsi, rdi
     mov rdi, 8
-    jmp common_irq_handler
+    jmp common_irq_handler + 1
 
 isr_wrapper_9:
     push rdi
@@ -326,28 +334,68 @@ isr_wrapper_9:
 
 isr_wrapper_10:
     push rdi
+    mov rdi, [rsp + 8]
+    push rsi
+    mov rsi, [rsp + 8]
+    mov [rsp + 16], rsi
+    mov rsi, [rsp]
+    mov [rsp + 8], rsi
+    mov rsp, 8
+    mov rsi, rdi
     mov rdi, 10
-    jmp common_irq_handler
+    jmp common_irq_handler + 1
 
 isr_wrapper_11:
     push rdi
+    mov rdi, [rsp + 8]
+    push rsi
+    mov rsi, [rsp + 8]
+    mov [rsp + 16], rsi
+    mov rsi, [rsp]
+    mov [rsp + 8], rsi
+    mov rsp, 8
+    mov rsi, rdi
     mov rdi, 11
-    jmp common_irq_handler
+    jmp common_irq_handler + 1
 
 isr_wrapper_12:
     push rdi
+    mov rdi, [rsp + 8]
+    push rsi
+    mov rsi, [rsp + 8]
+    mov [rsp + 16], rsi
+    mov rsi, [rsp]
+    mov [rsp + 8], rsi
+    mov rsp, 8
+    mov rsi, rdi
     mov rdi, 12
-    jmp common_irq_handler
+    jmp common_irq_handler + 1
 
 isr_wrapper_13:
     push rdi
+    mov rdi, [rsp + 8]
+    push rsi
+    mov rsi, [rsp + 8]
+    mov [rsp + 16], rsi
+    mov rsi, [rsp]
+    mov [rsp + 8], rsi
+    mov rsp, 8
+    mov rsi, rdi
     mov rdi, 13
-    jmp common_irq_handler
+    jmp common_irq_handler + 1
 
 isr_wrapper_14:
     push rdi
+    mov rdi, [rsp + 8]
+    push rsi
+    mov rsi, [rsp + 8]
+    mov [rsp + 16], rsi
+    mov rsi, [rsp]
+    mov [rsp + 8], rsi
+    mov rsp, 8
+    mov rsi, rdi
     mov rdi, 14
-    jmp common_irq_handler
+    jmp common_irq_handler + 1
 
 isr_wrapper_15:
     push rdi
@@ -361,8 +409,16 @@ isr_wrapper_16:
 
 isr_wrapper_17:
     push rdi
+    mov rdi, [rsp + 8]
+    push rsi
+    mov rsi, [rsp + 8]
+    mov [rsp + 16], rsi
+    mov rsi, [rsp]
+    mov [rsp + 8], rsi
+    mov rsp, 8
+    mov rsi, rdi
     mov rdi, 17
-    jmp common_irq_handler
+    jmp common_irq_handler + 1
 
 isr_wrapper_18:
     push rdi
@@ -426,8 +482,16 @@ isr_wrapper_29:
 
 isr_wrapper_30:
     push rdi
+    mov rdi, [rsp + 8]
+    push rsi
+    mov rsi, [rsp + 8]
+    mov [rsp + 16], rsi
+    mov rsi, [rsp]
+    mov [rsp + 8], rsi
+    mov rsp, 8
+    mov rsi, rdi
     mov rdi, 30
-    jmp common_irq_handler
+    jmp common_irq_handler + 1
 
 isr_wrapper_31:
     push rdi

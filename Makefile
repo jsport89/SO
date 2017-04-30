@@ -29,7 +29,7 @@ clean:
 	@rm -r build
 
 run: $(img)
-	@qemu-system-x86_64 -s -drive format=raw,file=$(IMG_NAME) -serial stdio -d int
+	@qemu-system-x86_64 -s -drive format=raw,file=$(IMG_NAME) -serial stdio #-d int
 
 img: $(img)
 

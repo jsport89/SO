@@ -4,6 +4,7 @@
  */
 #include <stdarg.h>
 #include <stdint-gcc.h>
+#include "../drivers/serial_output.h"
 #include "so_stdio.h"
 #include "so_string.h"
 #include "../drivers/vga_console.h"
@@ -37,10 +38,12 @@ void init_num_buff() {
 
 void print_str(const char *str) {
    VGA_display_str(str);
+   SER_write(str, strlen(str));
 }
 
 void print_char(char c) {
    VGA_display_char(c);
+   SER_write_char(c);
 }
 
 void print_long_long(long long num_to_print) {

@@ -15,11 +15,6 @@
 
 
 
-#define MASTER_PIC_NEW_OFFSET 0x20
-#define SLAVE_PIC_NEW_OFFSET 0x28
-
-
-
 /* Prototypes */
 void init_interrupt_environment(void);
 void IRQ_handler(int irq_num, int err);
@@ -55,8 +50,6 @@ void init_interrupt_environment() {
    size_t Global_IDT_size;
    Global_IDT_size = sizeof(Interrupt_Descriptor) * IDT_SIZE;
 
-   //CLI
-
    memset((void*)Global_IDT, 0, Global_IDT_size);
 
    init_IDT();
@@ -68,12 +61,7 @@ void init_interrupt_environment() {
    for (int i = 0; i < IDT_SIZE; i++)
       PIC_set_mask(i);
 
-/* Turn on Keyboard interrupt line */
-   PIC_clear_mask(1);
-
    init_irq_table();
-
-   //STI
 
    printk(" Interrupts"); /* Signify end of init intr env*/
 }
@@ -99,6 +87,9 @@ static void init_irq_table() {
  */
 void IRQ_handler(int irq_num, int err) {
 
+/* Debugging */
+//   printk("irq#: %d.\n", irq_num);
+
    if (irq_num <= 0x2F && irq_num >= 0x20) {
       irq_table[irq_num].handler(irq_num, err, irq_table[irq_num].arg);
    }
@@ -106,4 +97,11 @@ void IRQ_handler(int irq_num, int err) {
    irq_num -= MASTER_PIC_NEW_OFFSET;
 
    PIC_sendEOI(irq_num);
+}
+
+/* Set handler for a specific line */
+void IRQ_set_handler(int irq_num, irq_handler_t handler, void *arg) {
+   irq_table[irq_num].arg = arg;
+   irq_table[irq_num].handler = handler;
+   PIC_clear_mask(irq_num - MASTER_PIC_NEW_OFFSET);
 }

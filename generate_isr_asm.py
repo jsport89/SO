@@ -32,12 +32,41 @@ def generate_irq_asm_file(file_out_name):
 
 	for i in range(IRQ_VECTORS):
 		opened_file.write("isr_wrapper_" + str(i) + ":\n")
+
+		if i == 8 or (i > 9 and i < 15) or i == 17 or i == 30:
+			opened_file.write("    push rdi\n" +
+			                  "    mov rdi, [rsp + 8]\n" +
+			 			  	  "    push rsi\n" +
+			  		  	      "    mov rsi, [rsp + 8]\n" +
+			  		  		  "    mov [rsp + 16], rsi\n" +
+			   	  			  "    mov rsi, [rsp]\n" +
+				              "    mov [rsp + 8], rsi\n" +
+			   	  			  "    mov rsp, 8\n" +
+				              "    mov rsi, rdi\n" +
+				              "    mov rdi, " + str(i) + "\n" +
+				              "    jmp common_irq_handler + 1\n\n")
+			continue
 		opened_file.write("    push rdi\n" +
 				          "    mov rdi, " + str(i) + "\n" +
-				          "    jmp common_irq_handler\n\n") 
+				          "    jmp common_irq_handler\n\n")
 
-        opened_file.close()
+	opened_file.close()
 
+
+'''
+isr_wrappers 8, 10-14, 17, 30
+
+isr_wrapper14:
+    push rdi    mov rdi, [rsp + 8]
+    push rsi    mov rsi, [rsp + 8]
+    mov [rsp + 16], rsi
+    mov rsi, [rsp]
+    mov [rsp + 8], rsi
+    add rsp, 8
+    mov rsi, rdi
+    mov rdi, [WRAPPER # (14)]
+    jmp common_irq_handler + 1
+'''
 
 if __name__ == "__main__":
         if 1 == len(sys.argv):

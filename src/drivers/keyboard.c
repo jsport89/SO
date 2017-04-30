@@ -5,8 +5,10 @@
 #include "keyboard.h"
 #include "ps2.h"
 #include "vga_console.h"
+#include "interrupts.h"
 #include "../lib/so_stdio.h"
 #include "../lib/so_string.h"
+#define KEYBOARD_IRQ_NUM 33
 #define SCANCODE_TABLE_SIZE 256
 #define SELF_TEST_PASSED 0xAA
 #define ACK 0xFA
@@ -36,6 +38,11 @@ void keyboard_poll_scancodes(void);
 void keyboard_interrupt_scancode(void);
 char get_scancode();
 char get_char();
+static void keyboard_handler_code(int irq_num, int err, void *arg);
+
+static void keyboard_handler_code(int irq_num, int err, void *arg) {
+   keyboard_interrupt_scancode();
+}
 
 char get_scancode() {
    return read_from_data_port();
@@ -59,11 +66,9 @@ void keyboard_interrupt_scancode() {
    char char_to_print = get_char();
 
    if (char_to_print != 0)
-      VGA_display_char(char_to_print);
+      printk("%c", char_to_print);
    if (char_to_print == '\n')
-      VGA_display_str(">> ");
-
-   /* Call serial driver here later */
+      printk(">> ");
 }
 
 /*
@@ -108,6 +113,8 @@ void keyboard_init(){
       response = read_from_data_port();
       if (response != ACK)
          printk("Keyboard init: Failed enable.  Response: %x.\n", (unsigned int)response);
+
+      IRQ_set_handler(KEYBOARD_IRQ_NUM, keyboard_handler_code, NULL);
 
     printk(" Keyboard");
 }
