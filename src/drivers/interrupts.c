@@ -41,8 +41,9 @@ static struct {
  *  + Clear and Set IDT
  *  + LIDT to tell cpu where IDT is
  *  + Remap PIC
- *  + Set/Clear interrupt lines
- *  + init irq_handler
+ *  + Set interrupt lines
+ *  + Clear error interrupt lines
+ *  + init irq_table
  *  + Enable interrupts
  *  + Set and Clear desirable interrupt lines
  */
@@ -61,14 +62,19 @@ void init_interrupt_environment() {
    for (int i = 0; i < IDT_SIZE; i++)
       PIC_set_mask(i);
 
+   PIC_clear_mask(8);  // DF
+   PIC_clear_mask(13); // GP
+   PIC_clear_mask(14); // PF
+
    init_irq_table();
 
-   printk(" Interrupts"); /* Signify end of init intr env*/
+   printk(" Interrupts."); /* Signify end of init intr env*/
 }
 
 /* Func for testing irq_table c func entries */
 static void implement_handler_code(int irq_num, int err, void *arg) {
-  keyboard_interrupt_scancode();
+ /* keyboard_interrupt_scancode(); */
+   printk("Implement handler code for this interrupt line: %d.\n", irq_num);
 }
 
 static void init_irq_table() {
@@ -89,7 +95,8 @@ void IRQ_handler(int irq_num, int err) {
 
 /* Debugging */
 //   printk("irq#: %d.\n", irq_num);
-
+   if (irq_num < 0x20)
+      irq_num += 0x20;
    if (irq_num <= 0x2F && irq_num >= 0x20) {
       irq_table[irq_num].handler(irq_num, err, irq_table[irq_num].arg);
    }

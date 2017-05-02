@@ -1,4 +1,6 @@
 global start
+global gdt64
+global tss_descriptor
 extern long_mode_start
 
 section .text
@@ -14,7 +16,7 @@ start:
     call enable_paging      ; new
 
     ; load the 64-bit GDT
-    lgdt [gdt64.pointer]
+    lgdt [pointer]
 
     jmp gdt64.code:long_mode_start
 
@@ -159,6 +161,9 @@ gdt64:
     dq 0 ; zero entry
 .code: equ $ - gdt64 ; new
     dq (1<<43) | (1<<44) | (1<<47) | (1<<53) ; code segment
-.pointer:
+tss_descriptor:
+    dq 0 ; zero entry
+    dq 0
+pointer:
     dw $ - gdt64 - 1
     dq gdt64

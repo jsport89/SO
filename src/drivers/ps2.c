@@ -101,17 +101,17 @@ void ps2_init(void) {
    response = ps2_poll_read();
 
    if (response != 0x55)
-      printk("PS2: Failed self test. Response: %x.\n", (unsigned int)response);
+      printk("\nPS2: Failed self test. Response: %x.\n", (unsigned int)response);
 
    ps2_poll_write_cmd(0xAB);
    response = ps2_poll_read();
 
    if (response != 0x00)
-      printk("PS2: Failed interface test. Response: %x.\n", (unsigned int)response);
+      printk("\nPS2: Failed interface test. Response: %x.\n", (unsigned int)response);
 
    /* Enable devices on ports 1 & 2 */
    command = 0xAE;
    ps2_poll_write_cmd(command);
-   
-   printk(" PS/2");
+
+   printk(" PS/2.");
 }

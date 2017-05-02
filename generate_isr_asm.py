@@ -41,7 +41,7 @@ def generate_irq_asm_file(file_out_name):
 			  		  		  "    mov [rsp + 16], rsi\n" +
 			   	  			  "    mov rsi, [rsp]\n" +
 				              "    mov [rsp + 8], rsi\n" +
-			   	  			  "    mov rsp, 8\n" +
+			   	  			  "    add rsp, 8\n" +
 				              "    mov rsi, rdi\n" +
 				              "    mov rdi, " + str(i) + "\n" +
 				              "    jmp common_irq_handler + 1\n\n")

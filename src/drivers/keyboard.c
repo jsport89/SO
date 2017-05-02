@@ -84,12 +84,12 @@ void keyboard_init(){
       response = read_from_data_port();
 
       if (response != ACK)
-         printk("Keyboard init: Failed reset test. Response: %x.\n", (unsigned int)response);
+         printk("\nKeyboard init: Failed reset test. Response: %x.\n", (unsigned int)response);
 
       response = read_from_data_port();
 
       if (response != SELF_TEST_PASSED)
-         printk("Keyboard init: Failed reset test.  Response %x\n", (unsigned int)response);
+         printk("\nKeyboard init: Failed reset test.  Response %x\n", (unsigned int)response);
 
       command = 0xF0;
       write_to_data_port(command);
@@ -97,7 +97,7 @@ void keyboard_init(){
       response = read_from_data_port();
 
       if (response != ACK)
-         printk("Keyboard init: Failed scan set.  Response: %x.\n", (unsigned int)response);
+         printk("\nKeyboard init: Failed scan set.  Response: %x.\n", (unsigned int)response);
 
       command = 0x01;
       write_to_data_port(command);
@@ -105,18 +105,18 @@ void keyboard_init(){
       response = read_from_data_port();
 
       if (response != ACK)
-         printk("Keyboard init: Failed scan set sub.  Response: %x.\n", (unsigned int)response);
+         printk("\nKeyboard init: Failed scan set sub.  Response: %x.\n", (unsigned int)response);
 
       command = 0xF4;
       write_to_data_port(command);
 
       response = read_from_data_port();
       if (response != ACK)
-         printk("Keyboard init: Failed enable.  Response: %x.\n", (unsigned int)response);
+         printk("\nKeyboard init: Failed enable.  Response: %x.\n", (unsigned int)response);
 
       IRQ_set_handler(KEYBOARD_IRQ_NUM, keyboard_handler_code, NULL);
 
-    printk(" Keyboard");
+    printk(" Keyboard.");
 }
 
 /* Old polling code */

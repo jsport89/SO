@@ -58,6 +58,5 @@ static inline int are_interrupts_enabled()
 }
 
 
-
 /* asm("int $0x21");*/
 #endif /* interrupts.h */

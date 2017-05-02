@@ -56,7 +56,7 @@ void SER_init() {
 
    IRQ_set_handler(SERIAL_IRQ_NUMBER, serial_handler_code, &UART_meta);
 
-   printk(" Serial");
+   printk(" Serial.");
 }
 
 int SER_write_char(const char c) {

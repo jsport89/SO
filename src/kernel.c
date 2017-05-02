@@ -2,10 +2,13 @@
 #include "drivers/load_drivers.h"
 #include "drivers/init_drivers.h"
 #include "drivers/interrupts.h"
+#include "drivers/tss.h"
 #include "lib/so_stdio.h"
 #include "tests/tests.h"
 
 int kernel_main() {
+
+   setup_tss();
 
    init_drivers();
 
@@ -13,21 +16,23 @@ int kernel_main() {
 
    //asm("int $0x21");
 
-/* Test page fault
-int *p = (int*)0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-int i = 1;
-while(i);
-*p = 0;
-*/
+/* Test page fault */
+   int *p = (int*)0xFFFFFFFFFFFFFF;
+   int i = 1;
+   while(i);
+   *p = 0;
+
 
 /* To load TSS
 uint16_t selector = 0x40;
 asm("ltr %0"::"m"(selector));
 */
 
+/*
    int i = 1;
    while(i);
    printk("test\n");
+ */
    for(;;) {
       __asm__("hlt");
    }

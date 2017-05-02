@@ -13,6 +13,7 @@ all:
 	@$(CC) $(CFLAGS) -o drivers/interrupts.o drivers/interrupts.c
 	@$(CC) $(CFLAGS) -o drivers/PIC.o drivers/PIC.c
 	@$(CC) $(CFLAGS) -o drivers/init_IDT_entries.o drivers/init_IDT_entries.c
+	@$(CC) $(CFLAGS) -o drivers/tss.o drivers/tss.c
 	@$(CC) $(CFLAGS) -o helpers/ioaccess.o helpers/ioaccess.c
 	@$(CC) $(CFLAGS) -o tests/so_stdio_tests.o tests/so_stdio_tests.c
 	@$(CC) $(CFLAGS) -o tests/so_string_tests.o tests/so_string_tests.c
