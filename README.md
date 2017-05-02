@@ -1,5 +1,5 @@
 # SO 
-## Somewhat Operating x86_64-elf Ooperating System
+## Somewhat Operating x86_64-elf Operating System
 
 ### To generate image
 Run:
