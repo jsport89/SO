@@ -18,11 +18,13 @@ all:
 	@$(CC) $(CFLAGS) -o tests/so_stdio_tests.o tests/so_stdio_tests.c
 	@$(CC) $(CFLAGS) -o tests/so_string_tests.o tests/so_string_tests.c
 	@$(CC) $(CFLAGS) -o tests/vga_console_tests.o tests/vga_console_tests.c
+	@$(CC) $(CFLAGS) -o sys/page_alloc.o sys/page_alloc.c
 	@$(CC) $(CFLAGS) -o kernel.o kernel.c -mno-red-zone
 
 clean:
 	-rm *.o
 	-rm lib/*.o
 	-rm drivers/*.o
+	-rm sys/*.o
 	-rm helpers/*.o
 	-rm tests/*.o

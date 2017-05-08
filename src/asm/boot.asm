@@ -6,6 +6,8 @@ extern long_mode_start
 section .text
 bits 32
 start:
+    mov edi, ebx ; save multiboot tags pointer
+
     mov esp, stack_top
 
     call check_multiboot
@@ -19,10 +21,6 @@ start:
     lgdt [pointer]
 
     jmp gdt64.code:long_mode_start
-
-    ; print 'OK' to screen
-    mov dword [0xb8000], 0x2f4b2f4f
-    hlt
 
 check_multiboot:
     cmp eax, 0x36d76289

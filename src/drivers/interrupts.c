@@ -2,7 +2,8 @@
  * interrupts.c - Contains implementations of
  * interrupt functions.
  * TODO:
- * - TSS for each interrupt
+ * - Put error handlers in different file.
+ *    + Make sure you add the handler after initialization
  * - Handle interrupts with errors
  */
 #include "init_IDT_entries.h"
@@ -12,6 +13,7 @@
 #include "../lib/so_string.h"
 #include "../helpers/ioaccess.h"
 #include "keyboard.h"
+#include "tss.h"
 
 
 
@@ -19,7 +21,9 @@
 void init_interrupt_environment(void);
 void IRQ_handler(int irq_num, int err);
 static void init_irq_table(void);
-
+void df_handler(int irq_num, int err, void *ar);
+void gp_handler(int irq_num, int err, void *ar);
+void pf_handler(int irq_num, int err, void *ar);
 
 
 /* GLOBALS */
@@ -68,6 +72,20 @@ void init_interrupt_environment() {
 
    init_irq_table();
 
+   /* Set irq_handlers for exceptions */
+   IRQ_set_handler(DF_GLOBAL_IDT_INDEX, df_handler, NULL);
+   IRQ_set_handler(GP_GLOBAL_IDT_INDEX, gp_handler, NULL);
+   IRQ_set_handler(PF_GLOBAL_IDT_INDEX, pf_handler, NULL);
+   /*
+    * DF - 8
+    * GP - 13
+    * PF - 14
+    * arrays of 4096 bytes, set to end addresses
+    */
+    Global_IDT[DF_GLOBAL_IDT_INDEX].isti = 1;
+    Global_IDT[GP_GLOBAL_IDT_INDEX].isti = 2;
+    Global_IDT[PF_GLOBAL_IDT_INDEX].isti = 4;
+
    printk(" Interrupts."); /* Signify end of init intr env*/
 }
 
@@ -93,11 +111,12 @@ static void init_irq_table() {
  */
 void IRQ_handler(int irq_num, int err) {
 
-/* Debugging */
-//   printk("irq#: %d.\n", irq_num);
-   if (irq_num < 0x20)
-      irq_num += 0x20;
-   if (irq_num <= 0x2F && irq_num >= 0x20) {
+/* Debugging
+   register intptr_t stack_pointer asm("rsp");
+   printk("\nInterrupt stack address: %x.\n", stack_pointer);
+   printk("irq#: %d.\n", irq_num);
+ */
+   if (irq_num <= 255 && irq_num >= 0) {
       irq_table[irq_num].handler(irq_num, err, irq_table[irq_num].arg);
    }
 
@@ -111,4 +130,24 @@ void IRQ_set_handler(int irq_num, irq_handler_t handler, void *arg) {
    irq_table[irq_num].arg = arg;
    irq_table[irq_num].handler = handler;
    PIC_clear_mask(irq_num - MASTER_PIC_NEW_OFFSET);
+}
+
+void df_handler(int irq_num, int err, void *ar) {
+   register intptr_t stack_pointer asm("rsp");
+   printk("\n\nDF stack address: %x.\n", (unsigned int)stack_pointer);
+}
+
+void gp_handler(int irq_num, int err, void *ar) {
+   register intptr_t stack_pointer asm("rsp");
+   printk("\n\nGP stack address: %x.\n", (unsigned int)stack_pointer);
+}
+
+void pf_handler(int irq_num, int err, void *ar) {
+   register intptr_t stack_pointer asm("rsp");
+   printk("\n\nPF stack address: %x.\n", (unsigned int)stack_pointer);
+
+/* Debugging Cause DF
+   int *something = (int*)0xFFFFFFFFFFFFFFFF;
+   *something = 0;
+   */
 }

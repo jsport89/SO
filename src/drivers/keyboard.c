@@ -42,6 +42,10 @@ static void keyboard_handler_code(int irq_num, int err, void *arg);
 
 static void keyboard_handler_code(int irq_num, int err, void *arg) {
    keyboard_interrupt_scancode();
+/* DEBUGGING
+   register intptr_t stack_pointer asm("rsp");
+   printk("\nKeyboard stack address: %x.\n", (unsigned int)stack_pointer);
+ */
 }
 
 char get_scancode() {

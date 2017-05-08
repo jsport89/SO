@@ -2,6 +2,12 @@
 #define TSS_H
 #include <stdint-gcc.h>
 
+
+#define DF_GLOBAL_IDT_INDEX 8
+#define GP_GLOBAL_IDT_INDEX 13
+#define PF_GLOBAL_IDT_INDEX 14
+
+
 /* Expose gdt */
 extern void *gdt64;
 extern void *tss_descriptor;

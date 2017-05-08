@@ -7,9 +7,6 @@
 #define TSS_SELECTOR_SIZE 2
 #define TSS_SIZE 104
 #define TSS_TYPE 0x9
-#define DF_GLOBAL_IDT_INDEX 8
-#define GP_GLOBAL_IDT_INDEX 13
-#define PF_GLOBAL_IDT_INDEX 14
 #define NUM_OF_IST_STACKS 7
 #define IST_STACK_SIZE 4096
 
@@ -96,17 +93,8 @@ void setup_tss() {
 */
 
    asm("ltr %0"::"m"(SO_TSS_Selector));
-
-   /*
-    * DF - 8
-    * GP - 13
-    * PF - 14
-    * arrays of 4096 bytes, set to end addresses
-    */
-    Global_IDT[DF_GLOBAL_IDT_INDEX].isti = 1;
-    Global_IDT[GP_GLOBAL_IDT_INDEX].isti = 2;
-    Global_IDT[PF_GLOBAL_IDT_INDEX].isti = 4;
 }
+
 
 /*
 1. A struct for the TSS
