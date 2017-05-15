@@ -7,6 +7,7 @@
  * - #define background attributes (fix cursor colors)
  */
 #include "vga_console.h"
+#include "interrupts.h"
 #include "../lib/so_string.h"
 #include <stdint-gcc.h>
 
@@ -33,6 +34,12 @@ void VGA_clear(void) {
 /* Outputs a char to cursor position */
 void VGA_display_char(char c) {
    unsigned short char_attrbs = FONT;
+   int enable_ints = INTS_OFF;
+
+   if (are_interrupts_enabled()) {
+      enable_ints = INTS_ON;
+      CLI
+   }
 
    /* Clear cursor */
    vgaBuff[cursor] = 0;
@@ -61,6 +68,10 @@ void VGA_display_char(char c) {
    }
    /* Highlight cursor */
    vgaBuff[cursor] = CURSOR_ATTRBS;
+
+   if (enable_ints) {
+      STI
+   }
 }
 
 /* Outputs a string starting from cursor position */

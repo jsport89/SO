@@ -3,12 +3,10 @@
 
 #include <stdint-gcc.h>
 
-#define FREE_POOL_SIZE 256
-#define FIRST_AVAILABLE_ADDRESS 4000
-#define PAGE_FRAME_SIZE 4000
+#define FIRST_AVAILABLE_ADDRESS 4096
+#define PAGE_FRAME_SIZE 4096
 #define MMP_ENTRY_SIZE 24
 #define SH_ENTRY_SIZE 64
-
 
 /* typdefs */
 typedef struct {
@@ -70,7 +68,12 @@ typedef struct {
    uint64_t second_mmp_low_limit;
    uint64_t second_mmp_high_limit;
    uint64_t next_available_address;
+   uint64_t lowest_possible_address;
+   uint64_t highest_possible_address;
 }__attribute__((packed)) Available_Pages;
+
+/* Globals */
+Available_Pages pf_allocator_meta;
 
 /* Functions */
 

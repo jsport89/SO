@@ -79,6 +79,7 @@ void keyboard_interrupt_scancode() {
  * + Reset keyboard
  * + Set scan codes
  * + Enable Keyboard
+ * + Set irq handler
  */
 void keyboard_init(){
    uint8_t response;

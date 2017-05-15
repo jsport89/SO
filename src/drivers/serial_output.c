@@ -80,8 +80,9 @@ int SER_write_char(const char c) {
       consumer_next(&UART_meta);
    }
 
-   if (enable_ints)
+   if (enable_ints) {
       STI
+   }
 
    return status;
 }
