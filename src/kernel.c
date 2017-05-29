@@ -7,6 +7,10 @@
 #include "lib/so_stdio.h"
 #include "tests/tests.h"
 #include "sys/mmu.h"
+#include "lib/so_stdlib.h"
+
+// Testing
+#include "sys/virtual_page_alloc.h"
 
 int kernel_main(Fixed_Header *multiboot_tags)  {
 
@@ -16,16 +20,12 @@ int kernel_main(Fixed_Header *multiboot_tags)  {
 
    init_pf(multiboot_tags);
 
-/* Testing */
-   set_identity_map();
+   init_page_tables();
 
    printk("\nSO - Somewhat Operating %s\n\n", "Operating System");
 
-
-/* Page Alloc Testing
- * alloc alloc free free alloc alloc
- * 1     2     1    2    2     1
- */
+//   virtual_allocator_test();
+//   kmalloc_lib_test();
 
    /* infinite loop */
    for(;;) {

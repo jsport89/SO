@@ -265,7 +265,15 @@ common_irq_handler:
     push rcx
     push r8
     push r9
+    push rax
+    push rbx
+    push rsp
+    push rbp
     call IRQ_handler
+    pop rbp
+    pop rsp
+    pop rbx
+    pop rax
     pop r9
     pop r8
     pop rcx

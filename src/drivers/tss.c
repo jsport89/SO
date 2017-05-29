@@ -1,3 +1,6 @@
+/*
+ PF allocs for IST_STACKS
+ */
 #include "tss.h"
 #include "interrupts.h"
 #include "../lib/so_string.h"
@@ -66,6 +69,9 @@ static void configure_tss() {
    SO_TSS.IST1 = (uint64_t)&IST_STACKS[0][IST_STACK_SIZE - 2];
    SO_TSS.IST2 = (uint64_t)&IST_STACKS[1][IST_STACK_SIZE - 2];
    SO_TSS.IST4 = (uint64_t)&IST_STACKS[2][IST_STACK_SIZE - 2];
+
+/* DEBUGGING */
+   printk("***GPF Stack address: %p.***\n", (uint64_t)&IST_STACKS[1][IST_STACK_SIZE - 2]);
 }
 
 /*

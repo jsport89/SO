@@ -5,6 +5,7 @@ build_objs_dir = arch/x86_64/lib_objs
 all:
 	@$(CC) $(CFLAGS) -o lib/so_string.o  lib/so_string.c
 	@$(CC) $(CFLAGS) -o lib/so_stdio.o lib/so_stdio.c
+	@$(CC) $(CFLAGS) -o lib/so_kmalloc.o lib/so_kmalloc.c
 	@$(CC) $(CFLAGS) -o drivers/vga_console.o  drivers/vga_console.c
 	@$(CC) $(CFLAGS) -o drivers/ps2.o drivers/ps2.c
 	@$(CC) $(CFLAGS) -o drivers/keyboard.o drivers/keyboard.c

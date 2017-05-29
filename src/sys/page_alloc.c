@@ -40,8 +40,10 @@ void init_pf(Fixed_Header *from_grub) {
    map_available_memory_addresses(from_grub);
 
 // DELETE
+/*
    printk("First address: %lu.\n", pf_allocator_meta.lowest_possible_address);
    printk("Last address: %lu.\n", pf_allocator_meta.highest_possible_address);
+ */
 }
 
 static void map_available_memory_addresses(Fixed_Header *from_grub) {
@@ -53,7 +55,11 @@ static void map_available_memory_addresses(Fixed_Header *from_grub) {
    uint32_t tag_type = 1;
    uint32_t tag_size = 0;
    uint32_t total_tags_size = ((Fixed_Header*)cur_tag)->tag_size;
-   printk("Initial tags total size: %d.\n", ((Fixed_Header*)cur_tag)->tag_size);
+
+// DELETE
+//   printk("Initial tags total size: %d.\n", ((Fixed_Header*)cur_tag)->tag_size);
+
+
    cur_tag += 8; /* Get tag after fixed header */
    total_tags_size -= 8;
 
@@ -65,9 +71,12 @@ static void map_available_memory_addresses(Fixed_Header *from_grub) {
       tag_type = ((Generic_Tag *)cur_tag)->tag_type;
       tag_size = ((Generic_Tag *)cur_tag)->tag_size;
 
+/* DELETE
       printk("\nFoundtag:\n");
       printk("tag_type: %d.\n", tag_type);
       printk("tag_size: %d.\n", tag_size);
+ */
+
       if (tag_type == MMP_TYPE) {
          printk("Found memory map...\n");
          mmp = (Memory_Map_Tag *)cur_tag;
@@ -80,10 +89,10 @@ static void map_available_memory_addresses(Fixed_Header *from_grub) {
       cur_tag += tag_size + padding ;
    }
 
-   /* Get address spaces */
+/* Get address spaces
    printk("\n\nmmp:\ntype: %u.\nsize: %u.\nentrySize: %u.\n", mmp->tag_type, mmp->tag_size, mmp->memory_info_entry_size);
    printk("version: %u.\n\n", mmp->memory_info_entry_version);
-
+ */
    int num_of_mem_entries = (mmp->tag_size - 16) / mmp->memory_info_entry_size;
 
    /* Beginning of array of memory entries */
@@ -93,11 +102,12 @@ static void map_available_memory_addresses(Fixed_Header *from_grub) {
    /* loop through memory entries */
    for (int i = 0; i < num_of_mem_entries; i++) {
 
-/* DEBUGGIN */
+/* DEBUGGIN
       printk("\nMemoryEntry:\n");
       printk("StartAddress: %u.\n",((Memory_Info_Entry *)cur_tag)->starting_address);
       printk("Length: %u.\n", ((Memory_Info_Entry *)cur_tag)->length);
       printk("Type: %u.\n", ((Memory_Info_Entry *)cur_tag)->type);
+ */
 
       uint32_t entry_type = ((Memory_Info_Entry *)cur_tag)->type;
 
@@ -113,7 +123,7 @@ static void map_available_memory_addresses(Fixed_Header *from_grub) {
       tag_last_address = ((Memory_Info_Entry *)cur_tag)->starting_address + ((Memory_Info_Entry *)cur_tag)->length;
 
 // DELETE
-      printk("Tag Last address: %lu.\n", tag_last_address);
+//      printk("Tag Last address: %lu.\n", tag_last_address);
 
       if (tag_last_address > pf_allocator_meta.highest_possible_address) {
           pf_allocator_meta.highest_possible_address = tag_last_address;
@@ -123,15 +133,16 @@ static void map_available_memory_addresses(Fixed_Header *from_grub) {
    }
 
 // DELETE
-      printk("PFALLOC Last address: %lu.\n", pf_allocator_meta.highest_possible_address);
+//   printk("PFALLOC Last address: %lu.\n", pf_allocator_meta.highest_possible_address);
 
-   /* ELF section header */
+ /* ELF section header
    printk("\nELF Section Header:\n");
    printk("Type: %u.\n", esh->tag_type);
    printk("Size: %u.\n", esh->tag_size);
    printk("#ofSectHeaders: %u.\n", esh->number_of_section_header_entries);
    printk("SH_entry_size: %u.\n", esh->section_header_entry_size);
    printk("index_of_section_with_string_table: %u.\n", esh->index_of_section_with_string_table);
+  */
 
    /* Loop through elf headers */
    cur_tag = (char*)esh;
@@ -140,14 +151,14 @@ static void map_available_memory_addresses(Fixed_Header *from_grub) {
 
    for (int i = 0; i < esh->number_of_section_header_entries; i++) {
 
-/* DEBUGGIN */
+/* DEBUGGIN
       printk("\nelf tag:\n");
       printk("start address: %u.\n", ((Section_Header_Entry *)cur_tag)->segment_address);
       printk("end address: %u.\n", ((Section_Header_Entry *)cur_tag)->segment_address + ((Section_Header_Entry *)cur_tag)->segment_size);
       printk("size: %u.\n", ((Section_Header_Entry *)cur_tag)->segment_size);
       printk("type: %u.\n", ((Section_Header_Entry *)cur_tag)->section_type);
       printk("flags: %u.\n", ((Section_Header_Entry *)cur_tag)->flags);
-
+  */
       end_of_kernel = ((Section_Header_Entry *)cur_tag)->segment_address + ((Section_Header_Entry *)cur_tag)->segment_size;
 
       if (pf_allocator_meta.second_mmp_low_limit < end_of_kernel) {
@@ -159,12 +170,13 @@ static void map_available_memory_addresses(Fixed_Header *from_grub) {
       cur_tag += SH_ENTRY_SIZE;
    }
 
-/* DEBUGGIN */
+/* DEBUGGIN
    printk("\nPF_ALLOC_META:\n");
    printk("first_low = %u.\n", pf_allocator_meta.first_mmp_low_limit);
    printk("first_high = %u.\n", pf_allocator_meta.first_mmp_high_limit);
    printk("second_low = %u.\n", pf_allocator_meta.second_mmp_low_limit);
    printk("second_high = %u.\n", pf_allocator_meta.second_mmp_high_limit);
+ */
 }
 
 /*
@@ -175,9 +187,6 @@ static void map_available_memory_addresses(Fixed_Header *from_grub) {
   + If we exceed max address from 2nd mmp entry, throw error
 */
 void *MMU_pf_alloc(void) {
-
-/* DEBUGGING */
-   char label[4] = "UPF";
 
    int enable_ints = INTS_OFF;
 
@@ -223,9 +232,6 @@ void *MMU_pf_alloc(void) {
    if (enable_ints) {
       STI
    }
-
-/* DEBUGGING */
-   memcpy(free_page, (void*)label, 4);
 
    return free_page;
 }
@@ -311,6 +317,7 @@ static void add_to_pf_free_pool(void *pf) {
    pf_free_pool.size++;
 }
 
+/*
 void page_alloc_test() {
    uint64_t *page;
    int i;
@@ -320,7 +327,7 @@ void page_alloc_test() {
          printk("Page value: %u.\n", *page);
       }
    }
-/*
+
    uint64_t second_page = (uint64_t)MMU_pf_alloc();
    printk("Second page address: %u.\n", second_page);
 
@@ -342,5 +349,5 @@ void page_alloc_test() {
 
    uint64_t sev_page = (uint64_t)MMU_pf_alloc();
    printk("Seventh page address: %u.\n", sev_page);
- */
 }
+ */

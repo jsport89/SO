@@ -75,7 +75,7 @@ void init_interrupt_environment() {
    /* Set irq_handlers for exceptions */
    IRQ_set_handler(DF_GLOBAL_IDT_INDEX, df_handler, NULL);
    IRQ_set_handler(GP_GLOBAL_IDT_INDEX, gp_handler, NULL);
-   IRQ_set_handler(PF_GLOBAL_IDT_INDEX, pf_handler, NULL);
+   //IRQ_set_handler(PF_GLOBAL_IDT_INDEX, pf_handler, NULL);
    /*
     * DF - 8
     * GP - 13
@@ -120,9 +120,11 @@ void IRQ_handler(int irq_num, int err) {
       irq_table[irq_num].handler(irq_num, err, irq_table[irq_num].arg);
    }
 
-   irq_num -= MASTER_PIC_NEW_OFFSET;
+   if (irq_num >= MASTER_PIC_NEW_OFFSET)
+      irq_num -= MASTER_PIC_NEW_OFFSET;
 
    PIC_sendEOI(irq_num);
+
 }
 
 /* Set handler for a specific line */
@@ -140,14 +142,21 @@ void df_handler(int irq_num, int err, void *ar) {
 void gp_handler(int irq_num, int err, void *ar) {
    register intptr_t stack_pointer asm("rsp");
    printk("\n\nGP stack address: %x.\n", (unsigned int)stack_pointer);
-}
+   uint64_t v_add_causing_gpf;
+   uint64_t cr3_contents;
+   uint64_t rip_contents;
+   __asm__("movq %%cr2, %0" : "=r"(v_add_causing_gpf));
+   __asm__("movq %%cr3, %0" : "=r"(cr3_contents));
+   //__asm__("movq %%rip, %0" : "=r"(rip_contents));
 
-void pf_handler(int irq_num, int err, void *ar) {
-   register intptr_t stack_pointer asm("rsp");
-   printk("\n\nPF stack address: %x.\n", (unsigned int)stack_pointer);
 
-/* Debugging Cause DF
-   int *something = (int*)0xFFFFFFFFFFFFFFFF;
-   *something = 0;
-   */
+   printk("KERN_INFO_PF: cr2 - %lu.\n", v_add_causing_gpf);
+   printk("KERN_INFO_PF: cr3 - %lu.\n", cr3_contents);
+   printk("KERN_INFO_PF: error - %d.\n", err);
+   //printk("KERN_INFO_PF: RIP - %d.\n", rip_contents);
+
+
+   for(;;) {
+     __asm__("hlt");
+   }
 }

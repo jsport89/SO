@@ -14,14 +14,21 @@ def generate_irq_asm_file(file_out_name):
         opened_file.write("\nextern IRQ_handler\n")
 
 	opened_file.write("\nsection .text\n")
-
 	opened_file.write("\ncommon_irq_handler:\n" +
                       "    push rsi\n" +
 			          "    push rdx\n" +
 			          "    push rcx\n" +
 			          "    push r8\n" +
                       "    push r9\n" +
+                      "    push rax\n" +
+                      "    push rbx\n" +
+                      "    push rsp\n" +
+                      "    push rbp\n" +
                       "    call IRQ_handler\n" +
+                      "    pop rbp\n" +
+                      "    pop rsp\n" +
+                      "    pop rbx\n" +
+                      "    pop rax\n" +
 			          "    pop r9\n" +
 			          "    pop r8\n" +
                       "    pop rcx\n" +
