@@ -23,7 +23,24 @@ void VGA_clear(void);
 void VGA_display_char(char c);
 void VGA_display_str(const char * str);
 void scroll();
+void VGA_display_attr_char(int x, int y, char c, int fg, int bg);
+int VGA_row_count(void);
+int VGA_col_count(void);
 
+void VGA_display_attr_char(int x, int y, char c, int fg, int bg) {
+   fg = fg << 8;
+   bg = bg << 12;
+   int char_attrbs = fg | bg;
+   vgaBuff[y * WIDTH + x] =  char_attrbs | c;
+}
+
+int VGA_row_count(void) {
+   return HEIGHT;
+}
+
+int VGA_col_count(void) {
+   return WIDTH;
+}
 
 /* Clears entire screen */
 void VGA_clear(void) {

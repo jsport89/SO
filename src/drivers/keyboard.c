@@ -3,7 +3,6 @@
  * keyboard driver functions.
  */
 #include "keyboard.h"
-#include "ps2.h"
 #include "vga_console.h"
 #include "interrupts.h"
 #include "../lib/so_stdio.h"
@@ -12,6 +11,10 @@
 #define SCANCODE_TABLE_SIZE 256
 #define SELF_TEST_PASSED 0xAA
 #define ACK 0xFA
+
+/* Globals */
+ProcessQueue keyboard_queue;
+ProcessQueue *keyboard_queue_ptr = &keyboard_queue;
 
 /*
  * TODO:
@@ -39,6 +42,7 @@ void keyboard_interrupt_scancode(void);
 char get_scancode();
 char get_char();
 static void keyboard_handler_code(int irq_num, int err, void *arg);
+void init_keyboard_queue();
 
 static void keyboard_handler_code(int irq_num, int err, void *arg) {
    keyboard_interrupt_scancode();
@@ -121,6 +125,8 @@ void keyboard_init(){
 
       IRQ_set_handler(KEYBOARD_IRQ_NUM, keyboard_handler_code, NULL);
 
+      init_keyboard_queue();
+
     printk(" Keyboard.");
 }
 
@@ -146,4 +152,8 @@ void keyboard_poll_scancodes() {
          if (to_print != 0)
             printk("%c", to_print);
    }
+}
+
+void init_keyboard_queue() {
+   keyboard_queue.head = NULL;
 }

@@ -203,7 +203,7 @@ void *map_page(uint64_t v_add) {
    return (void *)vadd_L1_entry;
 }
 
-/* TESTING */
+/* FOR TESTING */
 void *map_page_2(uint64_t v_add) {
    virtual_addy v_address;
 
@@ -322,7 +322,7 @@ void MMU_free_pages(void *v_add, int num) {
    to_set = (L1_Entry *)map_page(v_add_causing_pf);
 
 /* DEBUGGING */
-   printk("Page Fault Occurred...\n");
+//   printk("Page Fault Occurred...\n");
 
    if (1 == to_set->available) {
       uint64_t new_pf = (uint64_t)MMU_pf_alloc();
@@ -389,9 +389,8 @@ void virtual_allocator_test() {
    printk("\n2nd char_test address: %p. Contents: %s.\n", char_test, char_test);
    MMU_free_page(test);
 
-   void *returned_vadd = NULL;
    while(1) {
-      returned_vadd = MMU_alloc_page();
+      MMU_alloc_page();
    }
 
 }

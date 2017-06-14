@@ -1,0 +1,183 @@
+global context_switch
+global load_main_proc
+global save_main_proc
+
+extern curr_proc
+extern next_proc
+extern main_proc_ptr
+
+section .text
+bits 64
+; Check if cur_proc is diff from next_proc
+; IF yes and cur_proc != 0,
+;    save context for cur_proc
+; Load next_proc context
+context_switch:
+    mov rsi, [curr_proc]      ; Clobbering???
+    mov rdx, [next_proc]
+    cmp rsi, rdx
+    je done
+    cmp rsi, 0
+    je load
+    jmp save
+    jmp done
+
+no_context_switch:
+    pop rsi                   ; Return address
+    pop rbp
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
+    pop r9
+    pop r8
+    pop rsi
+    pop rdi
+    pop rcx
+    pop rbx
+    pop rax
+    jmp done
+
+load:
+    ; Load next_proc's registers
+    mov rsi, [next_proc]       ; rip
+    mov [rsp + 88], rsi
+    mov rsi, [next_proc + 8]   ; cs
+    mov [rsp + 96], rsi
+    mov rsi, [next_proc + 16]  ; rflags
+    mov [rsp + 104], rsi
+    mov rsi, [next_proc + 24]  ; rsp
+    mov [rsp + 112], rsi
+    mov rsi, [next_proc + 32]  ; ss
+    mov [rsp + 120], rsi
+
+    ; Load next_proc's registers
+    mov rax, [next_proc + 40]
+    mov rbx, [next_proc + 48]
+    mov rcx, [next_proc + 56]
+    mov rdi, [next_proc + 64]
+    mov rsi, [next_proc + 72]     ; CLOBBERED (coming from context_switch)
+    mov r8, [next_proc + 80]
+    mov r9, [next_proc + 88]
+    mov r10, [next_proc + 96]
+    mov r11, [next_proc + 104]
+    mov r12, [next_proc + 112]
+    mov r13, [next_proc + 120]
+    mov r14, [next_proc + 128]
+    mov r15, [next_proc + 136]
+    mov rbp, [next_proc + 144]
+    mov ds, [next_proc + 152]
+    mov es, [next_proc + 160]
+    mov fs, [next_proc + 168]
+    mov gs, [next_proc + 176]
+
+; Possibly update curr_proc to new_proc
+    mov rsi, [next_proc]
+    mov [curr_proc], rsi
+    iretq
+
+save:
+    ; Need to get iret stuff from below above pushed stuff at rsp.
+    mov rsi, [rsp + 88]       ; rip
+    mov [curr_proc], rsi
+    mov rsi, [rsp + 96]       ; cs
+    mov [curr_proc + 8], rsi
+    mov rsi, [rsp + 104]      ; rflags
+    mov [curr_proc + 16], rsi
+    mov rsi, [rsp + 112]      ; rsp
+    mov [curr_proc + 24], rsi
+    mov rsi, [rsp + 120]      ; ss
+    mov [curr_proc + 32], rsi
+
+    ; Save curr_proc's registers
+    mov [curr_proc + 40], rax
+    mov [curr_proc + 48], rbx
+    mov [curr_proc + 56], rcx
+    mov [curr_proc + 64], rdi
+    mov [curr_proc + 72], rsi     ; CLOBBERED (coming from context_switch)
+    mov [curr_proc + 80], r8
+    mov [curr_proc + 88], r9
+    mov [curr_proc + 96], r10
+    mov [curr_proc + 104], r11
+    mov [curr_proc + 112], r12
+    mov [curr_proc + 120], r13
+    mov [curr_proc + 128], r14
+    mov [curr_proc + 136], r15
+    mov [curr_proc + 144], rbp
+    mov [curr_proc + 152], ds
+    mov [curr_proc + 160], es
+    mov [curr_proc + 168], fs
+    mov [curr_proc + 176], gs
+
+    jmp load
+
+load_main_proc:
+    ; Load main_proc_ptr's registers
+    mov rsi, [main_proc_ptr]       ; rip
+    mov [rsp + 88], rsi
+    mov rsi, [main_proc_ptr + 8]   ; cs
+    mov [rsp + 96], rsi
+    mov rsi, [main_proc_ptr + 16]  ; rflags
+    mov [rsp + 104], rsi
+    mov rsi, [main_proc_ptr + 24]  ; rsp
+    mov [rsp + 112], rsi
+    mov rsi, [main_proc_ptr + 32]  ; ss
+    mov [rsp + 120], rsi
+
+    ; Load main_proc_ptr's registers
+    mov rax, [main_proc_ptr + 40]
+    mov rbx, [main_proc_ptr + 48]
+    mov rcx, [main_proc_ptr + 56]
+    mov rdi, [main_proc_ptr + 64]
+    mov rsi, [main_proc_ptr + 72]     ; CLOBBERED (coming from context_switch)
+    mov r8, [main_proc_ptr + 80]
+    mov r9, [main_proc_ptr + 88]
+    mov r10, [main_proc_ptr + 96]
+    mov r11, [main_proc_ptr + 104]
+    mov r12, [main_proc_ptr + 112]
+    mov r13, [main_proc_ptr + 120]
+    mov r14, [main_proc_ptr + 128]
+    mov r15, [main_proc_ptr + 136]
+    mov rbp, [main_proc_ptr + 144]
+    mov ds, [main_proc_ptr + 152]
+    mov es, [main_proc_ptr + 160]
+    mov fs, [main_proc_ptr + 168]
+    mov gs, [main_proc_ptr + 176]
+    jmp done
+
+save_main_proc:
+    ; Need to get iret stuff from below above pushed stuff at rsp.
+    ;mov [main_proc_ptr], rip         ASK ABOUT THESE REGISTERS
+    mov [main_proc_ptr + 8], cs
+    ;mov [main_proc_ptr + 16], rflags ASK ABOUT THESE REGISTERS
+    mov [main_proc_ptr + 24], rsp
+    mov [main_proc_ptr + 32], ss
+
+    ; Save main_proc_ptr's registers
+    mov [main_proc_ptr + 40], rax
+    mov [main_proc_ptr + 48], rbx
+    mov [main_proc_ptr + 56], rcx
+    mov [main_proc_ptr + 64], rdi
+    mov [main_proc_ptr + 72], rsi     ; CLOBBERED (coming from context_switch)
+    mov [main_proc_ptr + 80], r8
+    mov [main_proc_ptr + 88], r9
+    mov [main_proc_ptr + 96], r10
+    mov [main_proc_ptr + 104], r11
+    mov [main_proc_ptr + 112], r12
+    mov [main_proc_ptr + 120], r13
+    mov [main_proc_ptr + 128], r14
+    mov [main_proc_ptr + 136], r15
+    mov [main_proc_ptr + 144], rbp
+    mov [main_proc_ptr + 152], ds
+    mov [main_proc_ptr + 160], es
+    mov [main_proc_ptr + 168], fs
+    mov [main_proc_ptr + 176], gs
+
+    jmp done
+
+done:
+    ret
+
+; remember to accommodate for return address.

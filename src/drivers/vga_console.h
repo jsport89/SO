@@ -12,5 +12,8 @@ extern void VGA_clear(void);
 extern void VGA_display_char(char);
 extern void VGA_display_str(const char *);
 
+void VGA_display_attr_char(int x, int y, char c, int fg, int bg);
+int VGA_row_count(void);
+int VGA_col_count(void);
 
 #endif /* vga_console.h */

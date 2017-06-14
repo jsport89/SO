@@ -197,13 +197,14 @@ void kfree(void *ptr) {
    cur_chunk->available = AVAIL;
 
 /* DEBUGGING  */
+/*
    printk("Block to free:\n");
    printk("block free'd address: %p.\n", cur_chunk);
    printk("size: %u.\n", cur_chunk->size);
    printk("next: %p.\n", cur_chunk->next);
    printk("prev: %p.\n", cur_chunk->prev);
    printk("avail: %u.\n\n", cur_chunk->available);
-
+ */
    if (cur_chunk->prev && cur_chunk->prev->available)
       cur_chunk = fuse_chunks(cur_chunk->prev);
 
@@ -342,10 +343,10 @@ void kmalloc_lib_test() {
 
 // Alloc and free
 /* Debugging */
-   int i = 1;
-   while(i);
+//   int i = 1;
+//   while(i);
 
-   uint64_t to_alloc = 10000;
+   uint64_t to_alloc = 8192;
    void *allocd_ptrs[to_alloc];
    for (int i = 0; i < to_alloc; i++) {
 /* BUG HERE, size => ~809384903842 */
@@ -358,18 +359,13 @@ void kmalloc_lib_test() {
       printk("kfree %d.\n", i);
    }
 
-
-
-
 // Exhaust memory
-/*
+
    void *to_print;
    while(1) {
       to_print = kmalloc(1000000);
       printk("malloc'd: %p\n", to_print);
    }
-*/
-
 }
 
 /*

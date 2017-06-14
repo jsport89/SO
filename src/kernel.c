@@ -11,6 +11,8 @@
 
 // Testing
 #include "sys/virtual_page_alloc.h"
+#include "lib/snakes.h"
+#include "lib/proc.h"
 
 int kernel_main(Fixed_Header *multiboot_tags)  {
 
@@ -24,11 +26,17 @@ int kernel_main(Fixed_Header *multiboot_tags)  {
 
    printk("\nSO - Somewhat Operating %s\n\n", "Operating System");
 
-//   virtual_allocator_test();
-//   kmalloc_lib_test();
+// Testing
+   init_proc();
 
+   setup_snakes(0);
+
+// DEBUGGING
+//   int i = 1;
+//   while(i);
    /* infinite loop */
    for(;;) {
+      PROC_run();
       __asm__("hlt");
    }
 }

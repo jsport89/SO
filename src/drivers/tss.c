@@ -1,5 +1,5 @@
 /*
- PF allocs for IST_STACKS
+ TODO: PF allocs for IST_STACKS
  */
 #include "tss.h"
 #include "interrupts.h"
@@ -11,14 +11,16 @@
 #define TSS_SIZE 104
 #define TSS_TYPE 0x9
 #define NUM_OF_IST_STACKS 7
-#define IST_STACK_SIZE 4096
+#define NUM_OF_RSP_STACKS 3
+#define TSS_STACKS_SIZE 4096
 
 
 /* Globals */
 static TSS_Descriptor SO_TSS_Descriptor;
 static TSS_Selector SO_TSS_Selector;
 static TSS SO_TSS;
-char IST_STACKS[NUM_OF_IST_STACKS][IST_STACK_SIZE];
+char IST_STACKS[NUM_OF_IST_STACKS][TSS_STACKS_SIZE];
+char RSP_STACKS[NUM_OF_RSP_STACKS][TSS_STACKS_SIZE];
 
 
 /* Prototypes */
@@ -66,12 +68,14 @@ static void configure_tss() {
 /*
  * Put addresses in ISTs to reserved blocks
  */
-   SO_TSS.IST1 = (uint64_t)&IST_STACKS[0][IST_STACK_SIZE - 2];
-   SO_TSS.IST2 = (uint64_t)&IST_STACKS[1][IST_STACK_SIZE - 2];
-   SO_TSS.IST4 = (uint64_t)&IST_STACKS[2][IST_STACK_SIZE - 2];
+ // ***Call MMU_pf_alloc instead.***
+   SO_TSS.IST1 = (uint64_t)&IST_STACKS[0][TSS_STACKS_SIZE - 2];
+   SO_TSS.IST2 = (uint64_t)&IST_STACKS[1][TSS_STACKS_SIZE - 2];
+   SO_TSS.IST4 = (uint64_t)&IST_STACKS[2][TSS_STACKS_SIZE - 2];
+   SO_TSS.IST5 = (uint64_t)&IST_STACKS[3][TSS_STACKS_SIZE - 2];
 
 /* DEBUGGING */
-   printk("***GPF Stack address: %p.***\n", (uint64_t)&IST_STACKS[1][IST_STACK_SIZE - 2]);
+   printk("***GPF Stack address: %p.***\n", &IST_STACKS[1][TSS_STACKS_SIZE - 2]);
 }
 
 /*

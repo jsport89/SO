@@ -255,32 +255,213 @@ global isr_wrapper_253
 global isr_wrapper_254
 global isr_wrapper_255
 
+global load_main_proc
+
+extern curr_proc
 extern IRQ_handler
+extern context_switch
+extern curr_proc
+extern next_proc
+extern main_proc_ptr
 
 section .text
 
 common_irq_handler:
     push rsi
-    push rdx
+    push rax
+    push rbx
     push rcx
     push r8
     push r9
-    push rax
-    push rbx
-    push rsp
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
     push rbp
     call IRQ_handler
+    jmp check_for_context_switch
+
+
+check_for_context_switch:
+    mov rsi, [curr_proc]
+    mov rdx, [next_proc]
+    cmp rsi, rdx
+    je pop_the_stack
+    cmp rsi, 0
+    je load_proc
+    jmp save_proc
+
+pop_the_stack:
     pop rbp
-    pop rsp
-    pop rbx
-    pop rax
+    pop r15
+    pop r14
+    pop r13
+    pop r12
+    pop r11
+    pop r10
     pop r9
     pop r8
     pop rcx
-    pop rdx
+    pop rbx
+    pop rax
     pop rsi
     pop rdi
+
     iretq
+
+
+load_proc:
+    mov rsi, [next_proc] 
+    mov rdx, [rsi] 
+    mov [rsp + 112], rdx 
+    mov rdx, [rsi + 8] 
+    mov [rsp + 120], rdx 
+    mov rdx, [rsi + 16] 
+    mov [rsp + 128], rdx 
+    mov rdx, [rsi + 24] 
+    mov [rsp + 136], rdx 
+    mov rdx, [rsi + 32] 
+    mov [rsp + 144], rdx 
+
+    mov rdx, [rsi + 144]
+    mov [rsp], rdx
+    mov rdx, [rsi + 136]
+    mov [rsp + 8], rdx
+    mov rdx, [rsi + 128]
+    mov [rsp + 16], rdx
+    mov rdx, [rsi + 120]
+    mov [rsp + 24], rdx
+    mov rdx, [rsi + 112]
+    mov [rsp + 32], rdx
+    mov rdx, [rsi + 104]
+    mov [rsp + 40], rdx
+    mov rdx, [rsi + 96]
+    mov [rsp + 48], rdx
+    mov rdx, [rsi + 88]
+    mov [rsp + 56], rdx
+    mov rdx, [rsi + 80]
+    mov [rsp + 64], rdx
+    mov rdx, [rsi + 56]
+    mov [rsp + 72], rdx
+    mov rdx, [rsi + 48]
+    mov [rsp + 80], rdx
+    mov rdx, [rsi + 40]
+    mov [rsp + 88], rdx
+    mov rdx, [rsi + 64]
+    mov [rsp + 104], rdx
+    mov ds, [rsi + 156]
+    mov es, [rsi + 164]
+    mov fs, [rsi + 172]
+    mov gs, [rsi + 180]
+    mov [curr_proc], rsi
+
+    mov rdx, [rsi + 72]
+    mov [rsp + 96], rdx
+
+    jmp pop_the_stack
+
+
+save_proc:
+    mov rsi, [curr_proc] 
+    mov rdx, [rsp + 112] 
+    mov [rsi], rdx 
+    mov rdx, [rsp + 120] 
+    mov [rsi + 8], rdx 
+    mov rdx, [rsp + 128] 
+    mov [rsi + 16], rdx 
+    mov rdx, [rsp + 136] 
+    mov [rsi + 24], rdx 
+    mov rdx, [rsp + 144] 
+    mov [rsi + 32], rdx 
+
+    mov rdx, [rsp]
+    mov [rsi + 144], rdx
+    mov rdx, [rsp + 8]
+    mov [rsi + 136], rdx
+    mov rdx, [rsp + 16]
+    mov [rsi + 128], rdx
+    mov rdx, [rsp + 24]
+    mov [rsi + 120], rdx
+    mov rdx, [rsp + 32]
+    mov [rsi + 112], rdx
+    mov rdx, [rsp + 40]
+    mov [rsi + 104], rdx
+    mov rdx, [rsp + 48]
+    mov [rsi + 96], rdx
+    mov rdx, [rsp + 56]
+    mov [rsi + 88], rdx
+    mov rdx, [rsp + 64]
+    mov [rsi + 80], rdx
+    mov rdx, [rsp + 72]
+    mov [rsi + 56], rdx
+    mov rdx, [rsp + 80]
+    mov [rsi + 48], rdx
+    mov rdx, [rsp + 88]
+    mov [rsi + 40], rdx
+    mov rdx, [rsp + 104]
+    mov [rsi + 64], rdx
+    mov [rsi + 156], ds
+    mov [rsi + 164], es
+    mov [rsi + 172], fs 
+    mov [rsi + 180], gs 
+
+    mov rdx, [rsp + 96]
+    mov [rsi + 72], rdx
+    jmp load_proc
+
+
+load_main_proc:
+    mov rsi, [main_proc_ptr] 
+    mov rdx, [rsi] 
+    mov [rsp + 112], rdx 
+    mov rdx, [rsi + 8] 
+    mov [rsp + 120], rdx 
+    mov rdx, [rsi + 16] 
+    mov [rsp + 128], rdx 
+    mov rdx, [rsi + 24] 
+    mov [rsp + 136], rdx 
+    mov rdx, [rsi + 32] 
+    mov [rsp + 144], rdx 
+
+    mov rdx, [rsi + 144]
+    mov [rsp], rdx
+    mov rdx, [rsi + 136]
+    mov [rsp + 8], rdx
+    mov rdx, [rsi + 128]
+    mov [rsp + 16], rdx
+    mov rdx, [rsi + 120]
+    mov [rsp + 24], rdx
+    mov rdx, [rsi + 112]
+    mov [rsp + 32], rdx
+    mov rdx, [rsi + 104]
+    mov [rsp + 40], rdx
+    mov rdx, [rsi + 96]
+    mov [rsp + 48], rdx
+    mov rdx, [rsi + 88]
+    mov [rsp + 56], rdx
+    mov rdx, [rsi + 80]
+    mov [rsp + 64], rdx
+    mov rdx, [rsi + 56]
+    mov [rsp + 72], rdx
+    mov rdx, [rsi + 48]
+    mov [rsp + 80], rdx
+    mov rdx, [rsi + 40]
+    mov [rsp + 88], rdx
+    mov rdx, [rsi + 64]
+    mov [rsp + 104], rdx
+    mov ds, [rsi + 156]
+    mov es, [rsi + 164]
+    mov fs, [rsi + 172]
+    mov gs, [rsi + 180]
+    mov rdx, [rsi + 72]
+    mov [rsp + 96], rdx
+
+    mov qword [next_proc], 0
+    mov qword [curr_proc], 0
+
+    jmp pop_the_stack
 
 isr_wrapper_0:
     push rdi

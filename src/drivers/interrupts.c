@@ -11,10 +11,10 @@
 #include "PIC.h"
 #include "../lib/so_stdio.h"
 #include "../lib/so_string.h"
+#include "../lib/types.h"
 #include "../helpers/ioaccess.h"
 #include "keyboard.h"
 #include "tss.h"
-
 
 
 /* Prototypes */
@@ -37,7 +37,32 @@ static struct {
    irq_handler_t handler;
 } irq_table[IDT_SIZE];
 
+/* SYSCALL STUFF TO MOVE Syscall Table */
+void execute_syscall(uint64_t syscall_num);
+static struct {
+   syscall_handler_t handler;
+} syscall_table[SCT_SIZE];
 
+void init_syscall_table() {
+   for (int i = 0; i < SCT_SIZE; i++) {
+      syscall_table[i].handler = NULL;
+   }
+}
+
+void syscall_set_handler(int syscall_num, syscall_handler_t handler) {
+   if (syscall_num <= SCT_SIZE && syscall_num >= 0) {
+      syscall_table[syscall_num].handler = handler;
+   }
+   else {
+      printk("INTERRUPTS: Bad syscall_num to set.\n");
+      for(;;) {
+        __asm__("hlt");
+      }
+   }
+}
+void execute_syscall(uint64_t syscall_num) {
+   syscall_table[syscall_num].handler(0, 0, 0, 0, 0);
+}
 
 /*
  * Sets up IDT and tells CPU where it's at.
@@ -72,6 +97,9 @@ void init_interrupt_environment() {
 
    init_irq_table();
 
+/* SYSCALL STUFF TO MOVE */
+   init_syscall_table();
+
    /* Set irq_handlers for exceptions */
    IRQ_set_handler(DF_GLOBAL_IDT_INDEX, df_handler, NULL);
    IRQ_set_handler(GP_GLOBAL_IDT_INDEX, gp_handler, NULL);
@@ -82,9 +110,9 @@ void init_interrupt_environment() {
     * PF - 14
     * arrays of 4096 bytes, set to end addresses
     */
-    Global_IDT[DF_GLOBAL_IDT_INDEX].isti = 1;
-    Global_IDT[GP_GLOBAL_IDT_INDEX].isti = 2;
-    Global_IDT[PF_GLOBAL_IDT_INDEX].isti = 4;
+   Global_IDT[DF_GLOBAL_IDT_INDEX].isti = 1;
+   Global_IDT[GP_GLOBAL_IDT_INDEX].isti = 2;
+   Global_IDT[PF_GLOBAL_IDT_INDEX].isti = 4;
 
    printk(" Interrupts."); /* Signify end of init intr env*/
 }
@@ -144,7 +172,7 @@ void gp_handler(int irq_num, int err, void *ar) {
    printk("\n\nGP stack address: %x.\n", (unsigned int)stack_pointer);
    uint64_t v_add_causing_gpf;
    uint64_t cr3_contents;
-   uint64_t rip_contents;
+//   uint64_t rip_contents;
    __asm__("movq %%cr2, %0" : "=r"(v_add_causing_gpf));
    __asm__("movq %%cr3, %0" : "=r"(cr3_contents));
    //__asm__("movq %%rip, %0" : "=r"(rip_contents));
@@ -153,7 +181,7 @@ void gp_handler(int irq_num, int err, void *ar) {
    printk("KERN_INFO_PF: cr2 - %lu.\n", v_add_causing_gpf);
    printk("KERN_INFO_PF: cr3 - %lu.\n", cr3_contents);
    printk("KERN_INFO_PF: error - %d.\n", err);
-   //printk("KERN_INFO_PF: RIP - %d.\n", rip_contents);
+   printk("KERN_INFO_PF: irq_num - %d.\n", irq_num);
 
 
    for(;;) {

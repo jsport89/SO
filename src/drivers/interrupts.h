@@ -2,6 +2,9 @@
 #define INTERRUPTS_H
 #include <stdint-gcc.h>
 
+/* SYSCALL STUFF TO MOVE */
+#define SCT_SIZE 128
+
 #define IDT_SIZE 256
 #define CLI asm("cli" : : );
 #define STI asm("sti" : : );
@@ -18,7 +21,7 @@ typedef struct {
    uint16_t reserved_1 : 5;
    uint16_t type : 4; /* Interrupt OR Trap? */
    uint16_t zero : 1;
-   uint16_t dpl : 2; /* descriptor_privilege_level */
+   uint16_t dpl : 2;  /* descriptor_privilege_level */
    uint16_t present : 1;
    uint16_t target_offset_2;
    uint32_t target_offset_3;
@@ -28,8 +31,16 @@ typedef struct {
 typedef void (*irq_handler_t)(int, int, void*);
 
 
+/* SYSCALL STUFF TO MOVE */
+typedef void (*syscall_handler_t)(int, int, int, int, int);
+
+
 /* Globals */
 extern Interrupt_Descriptor Global_IDT[IDT_SIZE];
+
+/* SYSCALL STUFF TO MOVE */
+extern void syscall_set_handler(int syscall_num, syscall_handler_t handler);
+extern void execute_syscall(uint64_t syscall_num);
 
 /* Functions */
 extern void IRQ_handler(int irq_num, int err);
